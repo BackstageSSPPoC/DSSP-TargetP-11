@@ -3,7 +3,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: DSSP-TargetP-11
-  namespace: default
+  namespace: qa
 
 spec:
   replicas: 1

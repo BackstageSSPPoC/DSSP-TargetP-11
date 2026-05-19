@@ -3,7 +3,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 
 metadata:
-  name: DSSP-TargetP-11-default
+  name: DSSP-TargetP-11-qa
   namespace: argocd
 
 spec:
@@ -12,11 +12,11 @@ spec:
   source:
     repoURL: https://github.com/BackstageSSPPoC/k8s-manifests.git
     targetRevision: main
-    path: apps/DSSP-TargetP-11/default
+    path: apps/DSSP-TargetP-11/qa
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: qa
 
   syncPolicy:
     automated:

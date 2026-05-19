@@ -7,7 +7,7 @@ pipeline {
         chaitanyapandeygspann/DSSP-TargetP-11 = 'chaitanyapandeygspann/DSSP-TargetP-11'
         DOCKER_TAG = "1.0.${BUILD_NUMBER}"
         IMAGE_TAG = "${chaitanyapandeygspann/DSSP-TargetP-11}:${DOCKER_TAG}"
-        DEPLOY_ENV = 'default'
+        DEPLOY_ENV = 'qa'
     }
 
     stages {

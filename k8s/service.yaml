@@ -4,7 +4,7 @@ kind: Service
 
 metadata:
   name: DSSP-TargetP-11
-  namespace: default
+  namespace: qa
 
 spec:
   selector:
