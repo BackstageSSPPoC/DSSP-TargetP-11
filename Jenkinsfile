@@ -9,9 +9,16 @@ pipeline {
       steps { checkout scm }
     }
     stage('Build') {
-      steps {
-        sh 'pip install -r requirements.txt'
-      }
+         steps {
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install --upgrade pip
+                if [ -f requirements.txt ]; then
+                    pip install -r requirements.txt
+                fi
+                '''
+        }
     }
     stage('SonarQube Analysis') {
       steps {
