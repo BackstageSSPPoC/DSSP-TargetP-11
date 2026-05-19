@@ -1,50 +1,93 @@
+
 pipeline {
-  agent any
-  environment {
-    IMAGE_NAME = 'chaitanyapandeygspann/DSSP-TargetP-11'
-    SONAR_PROJECT = 'DSSP-TargetP-11'
-  }
-  stages {
-    stage('Checkout') {
-      steps { checkout scm }
+    agent any
+
+    environment {
+        DSSP-TargetP-11 = 'DSSP-TargetP-11'
+        chaitanyapandeygspann/DSSP-TargetP-11 = 'chaitanyapandeygspann/DSSP-TargetP-11'
+        DOCKER_TAG = "1.0.${BUILD_NUMBER}"
+        IMAGE_TAG = "${chaitanyapandeygspann/DSSP-TargetP-11}:${DOCKER_TAG}"
+        DEPLOY_ENV = 'default'
     }
-    stage('Build') {
-         steps {
-                sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
-                if [ -f requirements.txt ]; then
-                    pip install -r requirements.txt
-                fi
-                '''
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
         }
+
+        
+stage('Build') {
+    steps {
+        sh 'pip install -r requirements.txt'
     }
-    stage('SonarQube Analysis') {
-      steps {
-        withSonarQubeEnv('sonarqube') {
-          sh 'sonar-scanner -Dsonar.projectKey=$SONAR_PROJECT -Dsonar.sources=. -Dsonar.language=py -Dsonar.python.coverage.reportPaths=coverage.xml'
+}
+
+
+        
+stage('Test') {
+    steps {
+        sh ''
+    }
+}
+
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'sonar-scanner'
+
+                    withSonarQubeEnv('SonarQube') {
+
+                        
+sh """
+
+"""
+
+                    }
+                }
+            }
         }
-      }
-    }
-    stage('Docker Build & Push') {
-      steps {
-        script {
-          docker.withRegistry('', 'dockerhub-credentials') {
-            docker.build(IMAGE_NAME).push(env.BUILD_NUMBER)
-            docker.build(IMAGE_NAME).push('latest')
-          }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
         }
-      }
+
+        stage('Build Docker Image') {
+            steps {
+                sh 'docker build -t ${IMAGE_TAG} .'
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                
+withCredentials([usernamePassword(
+    credentialsId: 'dockerhub-credentials',
+    usernameVariable: 'DOCKER_USER',
+    passwordVariable: 'DOCKER_PASS'
+)]) {
+
+    sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+
+    sh 'docker push ${IMAGE_TAG}'
+}
+
+            }
+        }
+
+        
+stage('GitOps Deploy') {
+    steps {
+        echo 'Updating GitOps repo'
     }
-    stage('Deploy') {
-      steps {
-        echo 'Deploying to production environment'
-      }
+}
+
     }
-  }
-  post {
-    failure { echo 'Pipeline failed!' }
-    success { echo 'Pipeline succeeded!' }
-  }
 }
